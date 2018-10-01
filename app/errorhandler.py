@@ -4,15 +4,11 @@ from flask import request, jsonify, make_response
 def init_errorhandler(app):
     @app.errorhandler(404)
     def not_found(error=None):
-        message = {"status": 404, "message": "Not Found: " + request.url}
-        resp = jsonify(message)
-        resp.status_code = 404
-        return make_response(resp)
+        message = {"message": "Not Found: " + request.url}
+        return jsonify(message), 400
 
     @app.errorhandler(500)
     def internal_error(error=None):
-        message = {"status": 500, "message": "Something went wrong" + request.url}
-        resp = jsonify(message)
-        resp.status_code = 500
+        message = {"message": "Something went wrong" + request.url}
 
-        return resp
+        return jsonify(message), 500

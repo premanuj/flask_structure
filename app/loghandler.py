@@ -8,7 +8,6 @@ def init_log(app):
     # log.setLevel(logging.DEBUG)
 
     if logging.ERROR:
-        print("ERROR")
         error_handler = TimedRotatingFileHandler(
             "logs/errors.log", when="midnight", interval=1, backupCount=10
         )
@@ -17,7 +16,6 @@ def init_log(app):
         app.logger.addHandler(error_handler)
 
     if logging.WARNING:
-        print("WARNING")
         warning_handler = TimedRotatingFileHandler(
             "logs/warning.log", when="midnight", interval=1, backupCount=10
         )
@@ -26,7 +24,6 @@ def init_log(app):
         app.logger.addHandler(warning_handler)
 
     if logging.CRITICAL:
-        print("CRITICAL")
         critical_handler = TimedRotatingFileHandler(
             "logs/critical.log", when="midnight", interval=1, backupCount=10
         )
@@ -35,20 +32,9 @@ def init_log(app):
         app.logger.addHandler(critical_handler)
 
     if logging.DEBUG:
-        print("DEBUG")
         debug_handler = TimedRotatingFileHandler(
             "logs/debug.log", when="midnight", interval=1, backupCount=10
         )
         debug_handler.setLevel(logging.DEBUG)
         debug_handler.setFormatter(formatter)
         app.logger.addHandler(debug_handler)
-
-    # log.addHandler(debug_handler)
-    # log.addHandler(error_handler)
-    # log.addHandler(warning_handler)
-    # log.addHandler(critical_handler)
-
-    # app.logger.addHandler(debug_handler)
-    # app.logger.addHandler(error_handler)
-    # app.logger.addHandler(warning_handler)
-    # app.logger.addHandler(critical_handler)

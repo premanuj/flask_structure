@@ -1,7 +1,5 @@
 import os
 
-LOGGING_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
 
 class Config(object):
     """Parent configuration class."""
@@ -9,7 +7,8 @@ class Config(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET = os.getenv("SECRET")
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    LOGGING_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
 
 
 class DevelopmentConfig(Config):
