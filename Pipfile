@@ -9,6 +9,8 @@ flask-sqlalchemy = "*"
 flask-cors = "*"
 raven = "*"
 blinker = "*"
+flask-migrate = "*"
+flask-script = "*"
 
 [dev-packages]
 
