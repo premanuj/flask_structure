@@ -3,7 +3,8 @@ import json
 from flask import Blueprint, current_app, jsonify, request
 
 from app.users import service as user_service
-from app.users.schema import user_schema, users_schema
+from app.users.schema import users_schema, user_schema
+from marshmallow import ValidationError
 
 
 users_bp = Blueprint("users", __name__)
@@ -12,7 +13,12 @@ users_bp = Blueprint("users", __name__)
 @users_bp.route("/", methods=["POST"])
 def user():
     data = request.get_json() or {}
-    result = user_service.new_user(data)
+    try:
+        result = user_schema.load(data)
+    except ValidationError as e:
+        raise ValidationError(e)
+    else:
+        result = user_service.new_user(result)
     response = jsonify(result)
     response.status_code = 200
     return response
@@ -22,7 +28,7 @@ def user():
 def all_users():
     result = user_service.get_all_user()
     result = users_schema.dump(result)
-    response = jsonify(result.data)
+    response = jsonify(result)
     response.status_code = 200
     return response
 
@@ -33,5 +39,4 @@ def user_details(id):
     result = user_schema.dump(result)
     response = jsonify(result)
     response.status_code = 200
-    return jsonify(result.data)
-
+    return response

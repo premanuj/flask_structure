@@ -1,11 +1,10 @@
 import enum
-
+from app import db
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
-
+from sqlalchemy.exc import IntegrityError
+from app.utils.custom_exception import DbException
 from werkzeug.security import generate_password_hash, check_password_hash
-
-from app import db
 
 
 class MyEnum(enum.Enum):
@@ -20,8 +19,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
     password_hash = db.Column(db.String)
-    email_address = db.Column(db.String)
-    user_type = db.Column(db.Enum(MyEnum))
+    email_address = db.Column(db.String(50), unique=True)
+    user_type = db.Column(db.Enum(MyEnum), default="normaluser")
     contacts = db.relationship(
         "Contact", back_populates="user", cascade="all, delete, delete-orphan"
     )
@@ -45,10 +44,14 @@ class User(db.Model):
         self.username = data["username"]
         self.password_hash = self.set_password(data["password"])
         self.email_address = data["email_address"]
+        self.user_type = data.get("user_type", "normaluser")
+        try:
+            db.session.add(self)
+            db.session.commit()
+        except IntegrityError as e:
+            raise DbException(e.orig)
 
-        sql = db.session.add(self)
-        db.session.commit()
-        return self.get_id()
+        return self
 
     def get_all(self):
         return User.query.all()

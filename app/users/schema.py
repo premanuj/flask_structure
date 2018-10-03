@@ -1,9 +1,17 @@
+
 from app.marshmallow_schema import ma
+from marshmallow import fields, post_load, Schema
+from app.users.models import User
 
 
-class UserSchema(ma.Schema):
+class UserSchema(Schema):
+    username = fields.String(required=True, error_messages={"messages": "Username is required."})
+    email_address = fields.Email(required=True, error_messages={"messages": "Email is required."})
+    password = fields.String(required=True, error_messages={"messages": "Password is required."})
+    user_type = fields.String()
+
     class Meta:
-        fields = ("id", "username", "email_address", "_links")
+        fields = ("id", "username", "email_address", "_links", "password", "user_type")
 
     _links = ma.Hyperlinks(
         {
