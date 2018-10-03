@@ -7,12 +7,15 @@ from app.initializers import init_setup
 from app.errorhandler import init_errorhandler
 from app.users.models import User, Contact
 
+from app.marshmallow_schema import ma
+
 
 def create_app(is_test=False):
     app = Flask(__name__, instance_relative_config=True)
     init_setup(app)
     register_routes(app)
     db.init_app(app)
+    ma.init_app(app)
     Migrate(app, db)
     init_errorhandler(app)
     init_log(app)

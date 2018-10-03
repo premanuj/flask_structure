@@ -11,6 +11,8 @@ raven = "*"
 blinker = "*"
 flask-migrate = "*"
 flask-script = "*"
+flask-marshmallow = "*"
+marshmallow-sqlalchemy = "*"
 
 [dev-packages]
 

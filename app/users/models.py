@@ -47,13 +47,14 @@ class User(db.Model):
         self.email_address = data["email_address"]
 
         sql = db.session.add(self)
-        print("SQL", self)
         db.session.commit()
-        print(sql)
         return self.get_id()
 
     def get_all(self):
         return User.query.all()
+
+    def get(self, id):
+        return User.query.filter_by(id=id).first()
 
 
 class Contact(db.Model):
