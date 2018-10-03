@@ -22,7 +22,6 @@ def init_errorhandler(app):
         message = {"message": "Not Found: "}
         return jsonify(message), 500
 
-    @app.errorhandler(DbException)
     @app.errorhandler(IntegrityError)
     def aleardy_exixts(error=None):
         message = {"message": "{} already exist".format(str(error.messages)).split(".")[-1]}

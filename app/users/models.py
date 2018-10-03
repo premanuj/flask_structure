@@ -1,5 +1,6 @@
 import enum
 from app import db
+from flask import abort
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.exc import IntegrityError
@@ -45,11 +46,15 @@ class User(db.Model):
         self.password_hash = self.set_password(data["password"])
         self.email_address = data["email_address"]
         self.user_type = data.get("user_type", "normaluser")
+        if User.query.filter_by(username=self.username).first() is not None:
+            raise DbException("Username already Exist")
+        if User.query.filter_by(email_address=self.email_address).first() is not None:
+            raise DbException("Email already Exist")
         try:
             db.session.add(self)
             db.session.commit()
-        except IntegrityError as e:
-            raise DbException(e.orig)
+        except IntegrityError:
+            raise DbException("Something went wrong with data base.")
 
         return self
 
