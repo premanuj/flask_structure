@@ -1,11 +1,17 @@
 import enum
 from app import db
-from flask import abort
+
+from flask import abort, current_app
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.exc import IntegrityError
 from app.utils.custom_exception import DbException
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (
+    TimedJSONWebSignatureSerializer as Serializer,
+    BadSignature,
+    SignatureExpired,
+)
 
 
 class MyEnum(enum.Enum):
@@ -40,6 +46,22 @@ class User(db.Model):
 
     def get_id(self):
         return self.email_address
+
+    def generate_auth_token(self, expiration=600):
+        s = Serializer(current_app.config["SECRET_KEY"], expires_in=expiration)
+        return s.dumps({"id": self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(current_app.config["SECRET_KEY"])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None  # valid token, but expired
+        except BadSignature:
+            return None  # invalid token
+        user = User.query.get(data["id"])
+        return user
 
     def save(self, data):
         self.username = data["username"]
