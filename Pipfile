@@ -9,8 +9,16 @@ flask-sqlalchemy = "*"
 flask-cors = "*"
 raven = "*"
 blinker = "*"
+flask-migrate = "*"
+flask-script = "*"
+flask-marshmallow = "*"
+marshmallow-sqlalchemy = "*"
+marshmallow = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

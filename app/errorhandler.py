@@ -1,4 +1,8 @@
 from flask import request, jsonify, make_response
+from marshmallow import ValidationError
+from sqlalchemy.exc import IntegrityError
+from app.utils.custom_exception import DataNotFound, DbException
+import json
 
 
 def init_errorhandler(app):
@@ -11,4 +15,19 @@ def init_errorhandler(app):
     def internal_error(error=None):
         message = {"message": "Something went wrong" + request.url}
 
+        return jsonify(message), 500
+
+    @app.errorhandler(ValidationError)
+    def required_not_found(error=None, data=None):
+        message = {"message": "Not Found: "}
+        return jsonify(message), 500
+
+    @app.errorhandler(IntegrityError)
+    def aleardy_exixts(error=None):
+        message = {"message": "{} already exist".format(str(error.messages)).split(".")[-1]}
+        return jsonify(message), 500
+
+    @app.errorhandler(DataNotFound)
+    def data_not_found(error=None):
+        message = {"message": error.messages}
         return jsonify(message), 500
