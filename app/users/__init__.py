@@ -1,15 +1,10 @@
 import json
-
-from flask import Blueprint, current_app, jsonify, request
-from flask_httpauth import HTTPBasicAuth
+from flask import Blueprint, current_app, jsonify, make_response, request
 from marshmallow import ValidationError
 
+import app
 from app.users import service as user_service
 from app.users.schema import user_schema, users_schema
-
-
-auth = HTTPBasicAuth()
-
 
 users_bp = Blueprint("users", __name__)
 
@@ -46,10 +41,16 @@ def user_details(id):
     return response
 
 
-@users_bp.route("/token", methods=["GET"])
-@auth.login_required
-def get_auth_token():
-    token = g.user.generate_auth_token()
-    response = jsonify({"token": token.decode("ascii")})
-    return response
+@users_bp.route("/login")
+def login():
+    auth = request.authorization
 
+    if not auth or not auth.username or not auth.password:
+        return make_response(
+            "Could not verify", 201, {"WWW-Authenticate": "Basic-relam: Login required"}
+        )
+
+    token = user_service.login(auth)
+    response = jsonify({"token": token.decode("UTF-8")})
+    response.status_code = 200
+    return response

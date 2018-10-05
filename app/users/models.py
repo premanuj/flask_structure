@@ -36,7 +36,8 @@ class User(db.Model):
         return "<User (username = {}, user_type={})>".format(self.username, self.user_type)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
+        # return self.password_hash
 
     def check_password(self, password):
         self.check_password_hash = check_password_hash(self.password_hash, password)
@@ -47,25 +48,9 @@ class User(db.Model):
     def get_id(self):
         return self.email_address
 
-    def generate_auth_token(self, expiration=600):
-        s = Serializer(current_app.config["SECRET_KEY"], expires_in=expiration)
-        return s.dumps({"id": self.id})
-
-    @staticmethod
-    def verify_auth_token(token):
-        s = Serializer(current_app.config["SECRET_KEY"])
-        try:
-            data = s.loads(token)
-        except SignatureExpired:
-            return None  # valid token, but expired
-        except BadSignature:
-            return None  # invalid token
-        user = User.query.get(data["id"])
-        return user
-
     def save(self, data):
         self.username = data["username"]
-        self.password_hash = self.set_password(data["password"])
+        self.set_password(data["password"])
         self.email_address = data["email_address"]
         self.user_type = data.get("user_type", "normaluser")
         if User.query.filter_by(username=self.username).first() is not None:
@@ -77,7 +62,8 @@ class User(db.Model):
             db.session.commit()
         except IntegrityError:
             raise DbException("Something went wrong with data base.")
-
+        print(self)
+        print(self.password_hash)
         return self
 
     def get_all(self):
@@ -85,6 +71,12 @@ class User(db.Model):
 
     def get(self, id):
         return User.query.filter_by(id=id).first()
+
+    def login(self, auth):
+        user = User.query.filter_by(username=auth.username).first()
+        print(user.is_active())
+        print("this is password", user.password_hash)
+        return user
 
 
 class Contact(db.Model):
