@@ -74,8 +74,6 @@ class User(db.Model):
 
     def login(self, auth):
         user = User.query.filter_by(username=auth.username).first()
-        print(user.is_active())
-        print("this is password", user.password_hash)
         return user
 
 
@@ -85,10 +83,28 @@ class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship("User", back_populates="contacts")
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
+    user = db.relationship(
+        "User", back_populates="contacts", primaryjoin="User.id==Contact.user_id"
+    )
 
     def __repr__(self):
-        return "<Contact (Full name = {} {}, email = {})>".format(
-            self.first_name, self.last_name, self.email_address
-        )
+        return "<Contact (Full name = {} {}>".format(self.first_name, self.last_name)
+
+    def save(self, data):
+        self.first_name = data["first_name"]
+        self.last_name = data["last_name"]
+        self.user_id = data["user_id"]
+
+        if Contact.query.filter_by(user_id=self.user_id).first() is not None:
+            raise DbException("User detail already Exist")
+
+        db.session.add(self)
+        db.session.commit()
+        return self
+
+    def get_all(self):
+        return Contact.query.all()
+
+    def user_profile(self, data):
+        contact = Contact.query.filter_by(id=id).first()

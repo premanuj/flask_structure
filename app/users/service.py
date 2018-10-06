@@ -4,7 +4,7 @@ import jwt
 from app.utils.custom_exception import DataNotFound
 from flask import abort
 
-from app.users.models import User
+from app.users.models import User, Contact
 
 
 def new_user(data):
@@ -44,4 +44,26 @@ def login(auth):
         token = jwt.encode({"id": user.id, "exp": datetime.utcnow() + timedelta(minutes=30)})
         return token
     abort(401)
+
+
+def user_profile(data):
+    user = Contact()
+    result = user.save(data)
+    if not result:
+        raise DataNotFound("No contact availble for this user")
+    print(result)
+    result = {
+        "id": result.id,
+        "first_name": result.first_name,
+        "last_name": result.last_name,
+        "user_id": result.user_id,
+    }
+    print(result)
+    return result
+
+
+def get_all_profile():
+    user = Contact()
+    result = user.get_all()
+    return result
 

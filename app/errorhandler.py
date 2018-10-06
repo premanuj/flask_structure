@@ -40,3 +40,8 @@ def init_errorhandler(app):
             {"WWWAuthenticate": 'Basic realm="Login Required"'},
         )
 
+    @app.errorhandler(DbException)
+    def custom_401(error):
+        message = {"message": error.messages}
+        return jsonify(message), 201
+

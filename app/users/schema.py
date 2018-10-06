@@ -11,7 +11,7 @@ class UserSchema(Schema):
     user_type = fields.String()
 
     class Meta:
-        fields = ("id", "username", "email_address", "_links", "password", "user_type")
+        fields = ("id", "username", "email_address", "_links", "password", "user_type", "contacts")
 
     _links = ma.Hyperlinks(
         {
@@ -19,6 +19,21 @@ class UserSchema(Schema):
             "collections": ma.URLFor("users.all_users"),
         }
     )
+
+
+class UserProfileSchema(Schema):
+    first_name = fields.String(
+        required=True, error_messages={"messages": "First name is required."}
+    )
+    last_name = fields.String(required=True, error_messages={"messages": "Last name is required."})
+    user_id = fields.Integer(required=True, error_messages={"messages": "Password is required."})
+
+    class Meta:
+        fields = ("id", "first_name", "last_name", "user_id")
+
+
+profile_schema = UserProfileSchema()
+profiles_schema = UserProfileSchema(many=True)
 
 
 user_schema = UserSchema()
