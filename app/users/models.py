@@ -37,7 +37,6 @@ class User(db.Model):
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
-        # return self.password_hash
 
     def check_password(self, password):
         self.check_password_hash = check_password_hash(self.password_hash, password)

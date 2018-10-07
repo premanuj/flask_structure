@@ -26,9 +26,6 @@ def user():
 @users_bp.route("/", methods=["GET"])
 def all_users():
     result = user_service.get_all_user()
-    print("AAAAAA", result)
-    result = users_schema.dump(result)
-    print("BBBB", result)
     response = jsonify(result)
     response.status_code = 200
     return response
@@ -37,7 +34,6 @@ def all_users():
 @users_bp.route("/<int:id>", methods=["GET"])
 def user_details(id):
     result = user_service.get_user(id)
-    result = user_schema.dump(result)
     response = jsonify(result)
     response.status_code = 200
     return response
