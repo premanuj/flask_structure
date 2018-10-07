@@ -1,11 +1,17 @@
 import enum
 from app import db
-from flask import abort
+
+from flask import abort, current_app
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.exc import IntegrityError
 from app.utils.custom_exception import DbException
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (
+    TimedJSONWebSignatureSerializer as Serializer,
+    BadSignature,
+    SignatureExpired,
+)
 
 
 class MyEnum(enum.Enum):
@@ -30,7 +36,7 @@ class User(db.Model):
         return "<User (username = {}, user_type={})>".format(self.username, self.user_type)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
 
     def check_password(self, password):
         self.check_password_hash = check_password_hash(self.password_hash, password)
@@ -43,7 +49,7 @@ class User(db.Model):
 
     def save(self, data):
         self.username = data["username"]
-        self.password_hash = self.set_password(data["password"])
+        self.set_password(data["password"])
         self.email_address = data["email_address"]
         self.user_type = data.get("user_type", "normaluser")
         if User.query.filter_by(username=self.username).first() is not None:
@@ -55,7 +61,8 @@ class User(db.Model):
             db.session.commit()
         except IntegrityError:
             raise DbException("Something went wrong with data base.")
-
+        print(self)
+        print(self.password_hash)
         return self
 
     def get_all(self):
@@ -64,6 +71,10 @@ class User(db.Model):
     def get(self, id):
         return User.query.filter_by(id=id).first()
 
+    def login(self, auth):
+        user = User.query.filter_by(username=auth.username).first()
+        return user
+
 
 class Contact(db.Model):
     __tablename__ = "contacts"
@@ -71,10 +82,28 @@ class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship("User", back_populates="contacts")
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
+    user = db.relationship(
+        "User", back_populates="contacts", primaryjoin="User.id==Contact.user_id"
+    )
 
     def __repr__(self):
-        return "<Contact (Full name = {} {}, email = {})>".format(
-            self.first_name, self.last_name, self.email_address
-        )
+        return "<Contact (Full name = {} {}>".format(self.first_name, self.last_name)
+
+    def save(self, data):
+        self.first_name = data["first_name"]
+        self.last_name = data["last_name"]
+        self.user_id = data["user_id"]
+
+        if Contact.query.filter_by(user_id=self.user_id).first() is not None:
+            raise DbException("User detail already Exist")
+
+        db.session.add(self)
+        db.session.commit()
+        return self
+
+    def get_all(self):
+        return Contact.query.all()
+
+    def user_profile(self, data):
+        contact = Contact.query.filter_by(id=id).first()

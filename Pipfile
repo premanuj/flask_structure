@@ -14,6 +14,7 @@ flask-script = "*"
 flask-marshmallow = "*"
 marshmallow-sqlalchemy = "*"
 marshmallow = "*"
+jwt = "*"
 
 [dev-packages]
 

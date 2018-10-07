@@ -1,4 +1,4 @@
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, Response
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from app.utils.custom_exception import DataNotFound, DbException
@@ -31,3 +31,17 @@ def init_errorhandler(app):
     def data_not_found(error=None):
         message = {"message": error.messages}
         return jsonify(message), 500
+
+    @app.errorhandler(401)
+    def custom_401(error):
+        return Response(
+            "<Why access is denied string goes here...>",
+            401,
+            {"WWWAuthenticate": 'Basic realm="Login Required"'},
+        )
+
+    @app.errorhandler(DbException)
+    def custom_401(error):
+        message = {"message": error.messages}
+        return jsonify(message), 201
+
