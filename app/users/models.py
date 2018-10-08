@@ -61,8 +61,6 @@ class User(db.Model):
             db.session.commit()
         except IntegrityError:
             raise DbException("Something went wrong with data base.")
-        print(self)
-        print(self.password_hash)
         return self
 
     def get_all(self):

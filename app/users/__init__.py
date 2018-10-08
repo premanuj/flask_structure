@@ -56,13 +56,11 @@ def login():
 
 @users_bp.route("/<int:user_id>/user_profile", methods=["POST"])
 def user_profile(user_id):
-    print("HERE")
     data = request.get_json() or {}
     data.update({"user_id": user_id})
     try:
         result = profile_schema.load(data)
     except ValidationError as e:
-        print(e)
         raise ValidationError(e)
     else:
         result = user_service.user_profile(result)

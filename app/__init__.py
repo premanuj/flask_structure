@@ -8,11 +8,13 @@ from app.errorhandler import init_errorhandler
 from app.users.models import User, Contact
 
 from app.marshmallow_schema import ma
+from flask_cors import CORS
 
 
 def create_app(is_test=False):
     app = Flask(__name__, instance_relative_config=True)
     init_setup(app)
+    CORS(app)
     register_routes(app)
     db.init_app(app)
     ma.init_app(app)

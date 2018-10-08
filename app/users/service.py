@@ -73,4 +73,3 @@ def get_all_profile():
     user = Contact()
     result = user.get_all()
     return result
-
