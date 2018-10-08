@@ -13,3 +13,12 @@ logs:
 	touch debug.log
 	touch warning.log
 	touch critical.log
+
+db_init:
+	flask db init
+
+db_migrate:
+	flask db migrate
+
+db_upgrade:
+	flask db upgrade

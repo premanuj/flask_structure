@@ -1,5 +1,8 @@
 import os
 
+project_dir = os.path.dirname(os.path.abspath(__file__))
+database_file = "sqlite:///{}".format(os.path.join(project_dir, "mydb.db"))
+
 
 class Config(object):
     """Parent configuration class."""
@@ -8,7 +11,8 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET = os.getenv("SECRET")
     LOGGING_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    # SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = database_file
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 
 class DevelopmentConfig(Config):
